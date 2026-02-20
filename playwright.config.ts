@@ -15,18 +15,6 @@ export default defineConfig({
         screenshot: "only-on-failure",
         video: "retain-on-failure",
     },
-    webServer: {
-        command: process.env.CI ? "npm run start" : "npm run dev",
-        url: `http://localhost:${PORT}/api/health`,
-        reuseExistingServer: !process.env.CI,
-        timeout: 120_000,
-        env: {
-            // garante que o app use o banco/segredos também no runner
-            DATABASE_URL: process.env.DATABASE_URL!,
-            JWT_SECRET: process.env.JWT_SECRET || "ci_secret",
-            PORT: String(PORT),
-        },
-    },
     projects: [
         { name: "chromium", use: { ...devices["Desktop Chrome"] } },
     ],
