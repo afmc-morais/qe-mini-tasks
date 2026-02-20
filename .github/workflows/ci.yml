@@ -1,0 +1,73 @@
+name: CI - Playwright Smoke
+
+on:
+    pull_request:
+    push:
+        branches: ["main"]
+
+jobs:
+    e2e:
+        runs-on: ubuntu-latest
+        timeout-minutes: 30
+
+        services:
+            postgres:
+                image: postgres:16-alpine
+                env:
+                    POSTGRES_USER: qe
+                    POSTGRES_PASSWORD: qe_pass
+                    POSTGRES_DB: qe_mini_tasks
+                ports:
+                    - 5432:5432
+                options: >-
+                    --health-cmd "pg_isready -U qe -d qe_mini_tasks"
+                    --health-interval 5s
+                    --health-timeout 5s
+                    --health-retries 20
+
+        env:
+            CI: true
+            DATABASE_URL: postgresql://qe:qe_pass@localhost:5432/qe_mini_tasks?schema=public
+            JWT_SECRET: ci_secret
+            E2E_EMAIL: demo@qe-mini-tasks.com
+            E2E_PASSWORD: demo123
+            PORT: "3000"
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "24"
+                  cache: "npm"
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Install Playwright browsers
+              run: npx playwright install --with-deps
+
+            - name: Generate Prisma client
+              run: npx prisma generate
+
+            - name: Run migrations
+              run: npx prisma migrate deploy
+
+            - name: Seed database
+              run: npx prisma db seed
+
+            - name: Build app
+              run: npm run build
+
+            - name: Run Playwright tests
+              run: npm run pw:test
+
+            - name: Upload Playwright report
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: playwright-report
+                  path: playwright-report
+                  retention-days: 7

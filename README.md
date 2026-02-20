@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# qe-mini-tasks (SaaS-style)
 
-## Getting Started
+Senior Quality Engineering portfolio project built to showcase:
+- E2E automation with Playwright
+- CI-ready database setup (PostgreSQL + Prisma migrations + seed)
+- Authentication testing (happy path + access control)
+- Stable selectors and accessibility-first UI
 
-First, run the development server:
+---
 
-```bash
+## Tech Stack
+- Next.js + TailwindCSS
+- Prisma ORM (v7) + PostgreSQL (Docker)
+- Playwright (E2E)
+
+---
+
+## Local Setup
+
+### 1) Start PostgreSQL (Docker)
+```
+docker compose up -d
+```
+---
+
+### 2) Configure env
+
+Create a .env at project root:
+
+```
+DATABASE_URL="postgresql://qe:qe_pass@localhost:5433/qe_mini_tasks?schema=public"
+JWT_SECRET="local_dev_secret"
+```
+---
+
+### 3) Migrate + seed
+
+```
+npx prisma migrate dev
+npx prisma db seed
+```
+---
+
+### 4) Run the app
+
+```
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+---
+
+## Health check:
+
+- GET /api/health
+
+Protected area:
+
+- /app/tasks
+
+Login:
+
+- /login
+
+Demo credentials (seeded):
+
+- Email: demo@qe-mini-tasks.com
+- Password: demo123
+
+---
+
+### E2E Tests (Playwright)
+
+## Run tests
+
+```
+npm run pw:test
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Open report
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+npm run pw:report
+```
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## What this project demonstrates (Senior QE focus)
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Risk-based E2E coverage for authentication and access control
+- Reliable, accessibility-first locators (getByLabel, roles)
+- Reproducible test environments (migrations + seed)
+- CI-friendly structure (ready for GitHub Actions)
